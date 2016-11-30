@@ -320,12 +320,13 @@ class Table(object):
         self._observation_ids = np.asarray(observation_ids, dtype=object)
 
         if sample_metadata is not None:
-            self._sample_metadata = pd.DataFrame(sample_metadata)
+            self._sample_metadata = pd.DataFrame(sample_metadata, index=self._sample_ids)
         else:
             self._sample_metadata = None
 
         if observation_metadata is not None:
-            self._observation_metadata = pd.DataFrame(observation_metadata)
+            self._observation_metadata = pd.DataFrame(observation_metadata,
+                                                      index=self._observation_ids)
         else:
             self._observation_metadata = None
 
@@ -643,18 +644,25 @@ class Table(object):
         """
         metadata = self.metadata(axis=axis)
         if metadata is not None:
-            for id_, md_entry in viewitems(md):
-                if self.exists(id_, axis=axis):
-                    idx = self.index(id_, axis=axis)
-                    metadata[idx].update(md_entry)
+            ids = self.ids(axis=axis)
+            if axis == 'sample':
+                s = pd.DataFrame(md).reindex(columns=ids).T
+                self._sample_metadata = pd.merge(self._sample_metadata, s,
+                                                 left_index=True, right_index=True,
+                                                 how='left')
+            elif axis == 'observation':
+                o = pd.DataFrame(md).reindex(columns=ids).T
+                self._observation_metadata = pd.merge(self._observation_metadata, s,
+                                                      left_index=True, right_index=True,
+                                                      how='left')
+            else:
+                raise UnknownAxisError(axis)
         else:
             ids = self.ids(axis=axis)
             if axis == 'sample':
-                self._sample_metadata = pd.DataFrame(md).reindex(ids,
-                                                                 axis=1)
+                self._sample_metadata = pd.DataFrame(md).reindex(columns=ids).T
             elif axis == 'observation':
-                self._observation_metadata = pd.DataFrame(md).reindex(ids,
-                                                                      axis=1)
+                self._observation_metadata = pd.DataFrame(md).reindex(columns=ids).T
             else:
                 raise UnknownAxisError(axis)
 

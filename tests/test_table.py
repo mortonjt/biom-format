@@ -1150,19 +1150,21 @@ class TableTests(TestCase):
         t = Table(d, obs_ids, samp_ids, observation_metadata=None,
                   sample_metadata=samp_md)
         t.add_metadata(obs_md, axis='observation')
-        self.assertEqual(t._observation_metadata[0]['taxonomy'], ['A', 'B'])
-        self.assertEqual(t._observation_metadata[1]['taxonomy'], ['B', 'C'])
-        self.assertEqual(t._observation_metadata[2]['taxonomy'],
+        print(t._observation_metadata)
+        print(t._observation_metadata.index)
+        self.assertEqual(t._observation_metadata.iloc[0]['taxonomy'], ['A', 'B'])
+        self.assertEqual(t._observation_metadata.iloc[1]['taxonomy'], ['B', 'C'])
+        self.assertEqual(t._observation_metadata.iloc[2]['taxonomy'],
                          ['E', 'D', 'F'])
-        self.assertEqual(t._observation_metadata[0]['other'], 'h1')
-        self.assertEqual(t._observation_metadata[1]['other'], 'h2')
-        self.assertEqual(t._observation_metadata[2]['other'], 'h3')
+        self.assertEqual(t._observation_metadata.iloc[0]['other'], 'h1')
+        self.assertEqual(t._observation_metadata.iloc[1]['other'], 'h2')
+        self.assertEqual(t._observation_metadata.iloc[2]['other'], 'h3')
 
         samp_md = {4: {'x': 'y', 'foo': 'bar'}, 5: {'x': 'z'}}
         t.add_metadata(samp_md, axis='sample')
-        self.assertEqual(t._sample_metadata[0]['x'], 'y')
-        self.assertEqual(t._sample_metadata[0]['foo'], 'bar')
-        self.assertEqual(t._sample_metadata[1]['x'], 'z')
+        self.assertEqual(t._sample_metadata.iloc[0]['x'], 'y')
+        self.assertEqual(t._sample_metadata.iloc[0]['foo'], 'bar')
+        self.assertEqual(t._sample_metadata.iloc[1]['x'], 'z')
 
     def test_add_metadata_one_w_existing_metadata(self):
         """ add_sample_metadata functions with existing metadata """
