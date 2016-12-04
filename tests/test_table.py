@@ -1232,14 +1232,14 @@ class TableTests(TestCase):
         d = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
         t = Table(d, obs_ids, samp_ids, obs_md=obs_md, samp_md=None)
         t.add_metadata(samp_md, axis='sample')
-        self.assertEqual(t._sample_metadata[0]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[1]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[2]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[3]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[0]['D'], ['A', 'A'])
-        self.assertEqual(t._sample_metadata[1]['D'], ['A', 'B'])
-        self.assertEqual(t._sample_metadata[2]['D'], ['A', 'C'])
-        self.assertEqual(t._sample_metadata[3]['D'], ['A', 'D'])
+        self.assertEqual(t._sample_metadata.iloc[0]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[1]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[2]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[3]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[0]['D'], ['A', 'A'])
+        self.assertEqual(t._sample_metadata.iloc[1]['D'], ['A', 'B'])
+        self.assertEqual(t._sample_metadata.iloc[2]['D'], ['A', 'C'])
+        self.assertEqual(t._sample_metadata.iloc[3]['D'], ['A', 'D'])
 
     def test_get_value_by_ids(self):
         """Return the value located in the matrix by the ids"""
