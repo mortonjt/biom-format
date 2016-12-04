@@ -652,7 +652,7 @@ class Table(object):
                                                  how='left')
             elif axis == 'observation':
                 o = pd.DataFrame(md).reindex(columns=ids).T
-                self._observation_metadata = pd.merge(self._observation_metadata, s,
+                self._observation_metadata = pd.merge(self._observation_metadata, o,
                                                       left_index=True, right_index=True,
                                                       how='left')
             else:

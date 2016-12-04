@@ -1150,8 +1150,7 @@ class TableTests(TestCase):
         t = Table(d, obs_ids, samp_ids, observation_metadata=None,
                   sample_metadata=samp_md)
         t.add_metadata(obs_md, axis='observation')
-        print(t._observation_metadata)
-        print(t._observation_metadata.index)
+
         self.assertEqual(t._observation_metadata.iloc[0]['taxonomy'], ['A', 'B'])
         self.assertEqual(t._observation_metadata.iloc[1]['taxonomy'], ['B', 'C'])
         self.assertEqual(t._observation_metadata.iloc[2]['taxonomy'],
@@ -1178,10 +1177,10 @@ class TableTests(TestCase):
         d = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
         t = Table(d, obs_ids, samp_ids, observation_metadata=obs_md,
                   sample_metadata=samp_md)
-        self.assertEqual(t._sample_metadata[0]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[1]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[2]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[3]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[0]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[1]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[2]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[3]['Treatment'], 'Control')
 
         samp_md = {4: {'barcode': 'TTTT'},
                    6: {'barcode': 'AAAA'},
@@ -1189,20 +1188,20 @@ class TableTests(TestCase):
                    7: {'barcode': 'CCCC'},
                    10: {'ignore': 'me'}}
         t.add_metadata(samp_md, 'sample')
-        self.assertEqual(t._sample_metadata[0]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[1]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[2]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[3]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[0]['barcode'], 'TTTT')
-        self.assertEqual(t._sample_metadata[1]['barcode'], 'GGGG')
-        self.assertEqual(t._sample_metadata[2]['barcode'], 'AAAA')
-        self.assertEqual(t._sample_metadata[3]['barcode'], 'CCCC')
+        self.assertEqual(t._sample_metadata.iloc[0]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[1]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[2]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[3]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[0]['barcode'], 'TTTT')
+        self.assertEqual(t._sample_metadata.iloc[1]['barcode'], 'GGGG')
+        self.assertEqual(t._sample_metadata.iloc[2]['barcode'], 'AAAA')
+        self.assertEqual(t._sample_metadata.iloc[3]['barcode'], 'CCCC')
 
         obs_md = {1: {'foo': 'bar'}}
         t.add_metadata(obs_md, axis='observation')
-        self.assertEqual(t._observation_metadata[0]['foo'], 'bar')
-        self.assertEqual(t._observation_metadata[1]['foo'], None)
-        self.assertEqual(t._observation_metadata[2]['foo'], None)
+        self.assertEqual(t._observation_metadata.iloc[0]['foo'], 'bar')
+        self.assertTrue(pd.isnull(t._observation_metadata.iloc[1]['foo']))
+        self.assertTrue(pd.isnull(t._observation_metadata.iloc[2]['foo']))
 
     def test_add_metadata_one_entry(self):
         """ add_sample_metadata functions with single md entry """
@@ -1216,10 +1215,10 @@ class TableTests(TestCase):
         d = np.array([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12]])
         t = Table(d, obs_ids, samp_ids, obs_md=obs_md, samp_md=None)
         t.add_metadata(samp_md, axis='sample')
-        self.assertEqual(t._sample_metadata[0]['Treatment'], 'Control')
-        self.assertEqual(t._sample_metadata[1]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[2]['Treatment'], 'Fasting')
-        self.assertEqual(t._sample_metadata[3]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[0]['Treatment'], 'Control')
+        self.assertEqual(t._sample_metadata.iloc[1]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[2]['Treatment'], 'Fasting')
+        self.assertEqual(t._sample_metadata.iloc[3]['Treatment'], 'Control')
 
     def test_add_sample_metadata_two_entries(self):
         """ add_sample_metadata functions with more than one md entry """
