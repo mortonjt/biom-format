@@ -1215,7 +1215,7 @@ class Table(object):
 
         idx = self.index(id, axis=axis)
 
-        return md.loc[idx] if md is not None else None
+        return md.iloc[idx] if md is not None else None
 
     def index(self, id, axis):
         """Return the index of the identified sample/observation.
