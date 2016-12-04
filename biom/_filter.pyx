@@ -18,42 +18,42 @@ cimport numpy as cnp
 
 cdef cnp.ndarray[cnp.uint8_t, ndim=1] \
     _make_filter_array_general(arr,
-			       ids,
-			       metadata,
-			       func,
-			       axis,
-			       cnp.uint8_t invert):
+                               ids,
+                               metadata,
+                               func,
+                               axis,
+                               cnp.uint8_t invert):
     """Faster version of
     [func(vals_i, id_i, md_i) ^ invert for
     (vals_i, id_i, md_i) in zip(ids, metadata, rows/cols)]
     """
     cdef:
-	Py_ssize_t i, j, n = arr.shape[::-1][axis]
-	cnp.ndarray[cnp.float64_t, ndim=1] data = arr.data, \
-					   row_or_col = np.zeros(n)
-	cnp.ndarray[cnp.int32_t, ndim=1] indptr = arr.indptr, \
-					 indices = arr.indices
-	cnp.ndarray[cnp.uint8_t, ndim=1] bools = \
-	    np.empty(len(ids), dtype=np.uint8)
-	cnp.int32_t start, end
+        Py_ssize_t i, j, n = arr.shape[::-1][axis]
+        cnp.ndarray[cnp.float64_t, ndim=1] data = arr.data, \
+                                           row_or_col = np.zeros(n)
+        cnp.ndarray[cnp.int32_t, ndim=1] indptr = arr.indptr, \
+                                         indices = arr.indices
+        cnp.ndarray[cnp.uint8_t, ndim=1] bools = \
+            np.empty(len(ids), dtype=np.uint8)
+        cnp.int32_t start, end
 
     for i in range(len(ids)):
-	start, end = indptr[i], indptr[i+1]
+        start, end = indptr[i], indptr[i+1]
 
-	# The following loop should be equivalent to
-	# row_or_col = np.zeros(n)
-	# row_or_col.put(indices[start:end], data[start:end])
-	for j in range(n):
-	    if start >= end or j < indices[start]:
-		row_or_col[j] = 0
-	    elif j == indices[start]:
-		row_or_col[j] = data[start]
-		start += 1
+        # The following loop should be equivalent to
+        # row_or_col = np.zeros(n)
+        # row_or_col.put(indices[start:end], data[start:end])
+        for j in range(n):
+            if start >= end or j < indices[start]:
+                row_or_col[j] = 0
+            elif j == indices[start]:
+                row_or_col[j] = data[start]
+                start += 1
 
-	# After converting the output of the filtering function to a
-	# bool, we XOR it with invert (if invert is false it doesn't
-	# modify the function output, if it's true it inverts it).
-	bools[i] = bool(func(row_or_col, ids[i], metadata[i])) ^ invert
+        # After converting the output of the filtering function to a
+        # bool, we XOR it with invert (if invert is false it doesn't
+        # modify the function output, if it's true it inverts it).
+        bools[i] = bool(func(row_or_col, ids[i], metadata[i])) ^ invert
 
     return bools
 
@@ -70,17 +70,17 @@ cdef _remove_rows_csr(arr, cnp.ndarray[cnp.uint8_t, ndim=1] booleans):
     offset = 0
     nnz = 0
     for row in range(m):
-	start, end = indptr[row], indptr[row+1]
-	if booleans[row]:
-	    indptr[row-offset_rows] = nnz
-	    nnz += end - start
-	    indptr[row-offset_rows + 1] = nnz
-	    for j in range(start, end):
-		data[j-offset] = data[j]
-		indices[j-offset] = indices[j]
-	else:
-	    offset += end - start
-	    offset_rows += 1
+        start, end = indptr[row], indptr[row+1]
+        if booleans[row]:
+            indptr[row-offset_rows] = nnz
+            nnz += end - start
+            indptr[row-offset_rows + 1] = nnz
+            for j in range(start, end):
+                data[j-offset] = data[j]
+                indices[j-offset] = indices[j]
+        else:
+            offset += end - start
+            offset_rows += 1
     arr.data = data[:nnz]
     arr.indices = indices[:nnz]
     arr.indptr = indptr[:m-offset_rows+1]
@@ -96,7 +96,7 @@ def _filter(arr, ids, metadata, index, ids_to_keep, axis, invert):
     ids : 1D array_like
     metadata : 1D array_like
     index : dict
-	Maps id to index
+        Maps id to index
     ids_to_keep : function or iterable
     axis : int
     invert : bool
@@ -113,37 +113,37 @@ def _filter(arr, ids, metadata, index, ids_to_keep, axis, invert):
     # General version (i.e., filter functions accepts values, ids and
     # metadata) requires CSR for axis 0 and CSC for axis 1.
     if axis == 0:
-	arr = arr.tocsr()
+        arr = arr.tocsr()
     elif axis == 1:
-	arr = arr.tocsc()
+        arr = arr.tocsc()
     fmt = arr.getformat()
 
     cdef cnp.ndarray[cnp.uint8_t, ndim=1] bools
 
     if metadata_is_None:
-	metadata = (None,) * len(ids)
+        metadata = (None,) * len(ids)
 
     if isinstance(ids_to_keep, Iterable):
-	idx = [index[id_] for id_ in ids_to_keep]
-	ids_to_keep = np.zeros(len(ids), dtype=bool)
-	ids_to_keep.put(idx, True)
-	bools = np.bitwise_xor(ids_to_keep, invert).view(np.uint8)
+        idx = [index[id_] for id_ in ids_to_keep]
+        ids_to_keep = np.zeros(len(ids), dtype=bool)
+        ids_to_keep.put(idx, True)
+        bools = np.bitwise_xor(ids_to_keep, invert).view(np.uint8)
     elif isinstance(ids_to_keep, FunctionType):
-	bools = _make_filter_array_general(arr, ids, metadata, ids_to_keep,
-					   axis, invert)
+        bools = _make_filter_array_general(arr, ids, metadata, ids_to_keep,
+                                           axis, invert)
     else:
-	raise TypeError("ids_to_keep must be an iterable or a function")
+        raise TypeError("ids_to_keep must be an iterable or a function")
 
     if axis == 0:
-	_remove_rows_csr(arr, bools)
+        _remove_rows_csr(arr, bools)
     elif axis == 1:
-	arr = arr.T  # arr was CSC, CSR after transposing
-	_remove_rows_csr(arr, bools)
-	arr = arr.T  # Back to CSC
+        arr = arr.T  # arr was CSC, CSR after transposing
+        _remove_rows_csr(arr, bools)
+        arr = arr.T  # Back to CSC
 
     ids = np.asarray(list(compress(ids, bools)), dtype=object)
     metadata = tuple(compress(metadata, bools))
 
     if metadata_is_None:
-	metadata = None
+        metadata = None
     return arr, ids, metadata
