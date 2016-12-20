@@ -465,44 +465,6 @@ class Table(object):
         else:
             raise TableException("Unknown input type")
 
-    # def _cast_metadata(self):
-    #     """Casts all metadata to defaultdict to support default values.
-
-    #     Should be called after any modifications to sample/observation
-    #     metadata.
-    #     """
-    #     def cast_metadata(md):
-    #         """Do the actual casting"""
-    #         default_md = []
-    #         # if we have a list of [None], set to None
-    #         if md is not None:
-    #             if md.count(None) == len(md):
-    #                 return None
-    #         if md is not None:
-    #             for item in md:
-    #                 d = defaultdict(lambda: None)
-
-    #                 if isinstance(item, dict):
-    #                     d.update(item)
-    #                 elif item is None:
-    #                     pass
-    #                 else:
-    #                     raise TableException("Unable to cast metadata: %s" %
-    #                                          repr(item))
-    #                 default_md.append(d)
-    #             return tuple(default_md)
-    #         return md
-
-    #     self._sample_metadata = cast_metadata(self._sample_metadata)
-    #     self._observation_metadata = cast_metadata(self._observation_metadata)
-
-    #     self._sample_group_metadata = (
-    #         self._sample_group_metadata
-    #         if self._sample_group_metadata else None)
-    #     self._observation_group_metadata = (
-    #         self._observation_group_metadata
-    #         if self._observation_group_metadata else None)
-
     @property
     def shape(self):
         """The shape of the underlying contingency matrix"""
